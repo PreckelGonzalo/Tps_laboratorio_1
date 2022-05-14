@@ -6,8 +6,7 @@ o Precio o Tipo de pasajero o Código de vuelo
 3. BAJA: Se ingresará el Número de Id y se eliminará el empleado del sistema.
 4. INFORMAR:
 1. Listado de los pasajeros ordenados alfabéticamente por Apellido y Tipo de pasajero.
-2. Total y promedio de los precios de los pasajes, y cuántos pasajeros superan el precio
-promedio.
+2. Total y promedio de los precios de los pasajes, y cuántos pasajeros superan el precio promedio.
 3. Listado de los pasajeros por Código de vuelo y estados de vuelos ‘ACTIVO’
 1-NOTA: Se deberá realizar el menú de opciones y las validaciones a través de funciones.
 Tener en cuenta que no se podrá ingresar a los casos 2, 3 y 4; sin antes haber realizado la
@@ -19,8 +18,11 @@ carga de algún pasajero.
 #include <stdlib.h>
 #include <conio.h>
 #include <string.h>
+#include <ctype.h>
 #include "ArrayPassenger.h"
-#define TAM 3
+#include "segundaEstructura.h"
+#define TAM 2000
+#define tam_estado 3
 
 int main()
 {
@@ -28,8 +30,16 @@ int main()
     ePassenger pListaPasajeros[TAM];
     ePassenger unPasajero;
     initPassengers(pListaPasajeros, TAM);
+    eEstado pListaEstado[tam_estado] =
+    {
+    		{1, "Activo"},
+			{2, "Demorado"},
+			{3, "Cancelado"}
+    };
     int contadorId = 1;
+    int contadorIDS = 1;
     int flagHayUnPasajero = 0;
+    int flagHarcodeo = 0;
     char seguir = 's';
 
     do
@@ -37,9 +47,10 @@ int main()
 		switch(menu())
 		{
 			case 1:
-				if(addPassenger(pListaPasajeros,  TAM,  contadorId,  unPasajero.nombre, unPasajero.apellido, unPasajero.precio,
-						unPasajero.tipoDePasajero,  unPasajero.codigoDeVuelo, unPasajero.estadoDelVuelo) == 0)
+				if(flagHarcodeo == 0)
 				{
+					addPassenger(pListaPasajeros,  TAM, pListaEstado, tam_estado, contadorId,  unPasajero.nombre, unPasajero.apellido,
+							unPasajero.precio, unPasajero.tipoDePasajero,  unPasajero.codigoDeVuelo, unPasajero.estadoDelVuelo);
 					contadorId++;
 					flagHayUnPasajero = 1;
 				}
@@ -50,9 +61,9 @@ int main()
 				break;
 
 			case 2:
-				if(flagHayUnPasajero == 1)
+				if(flagHayUnPasajero == 1 || flagHarcodeo == 1)
 				{
-					modificarPasajeros(pListaPasajeros, TAM);
+					modificarPasajeros(pListaPasajeros, TAM,pListaEstado, tam_estado);
 				}
 				else
 				{
@@ -61,21 +72,88 @@ int main()
 
 			break;
 			case 3:
+				if(flagHayUnPasajero == 1 || flagHarcodeo == 1 )
+				{
+					removePassenger(pListaPasajeros,TAM,pListaEstado, tam_estado);
+				}
+				else
+				{
+					printf("No se ingreso ningun pasajero\n");
+				}
 			break;
 			case 4:
+				if(flagHayUnPasajero == 1 || flagHarcodeo == 1)
+				{
+					switch(subMenu())
+					{
+					case 1:
+						printf("Pasajeros desordenados\n");
+						printPassengers(pListaPasajeros, TAM, pListaEstado, tam_estado);
+						ordenarPasajeros(pListaPasajeros,TAM, 0);
+						printf("Pasajeros ordenados\n");
+						printPassengers(pListaPasajeros, TAM, pListaEstado, tam_estado);
+					break;
+
+					case 2:
+						printf("Pasajeros desordenados\n");
+						printPassengers(pListaPasajeros, TAM, pListaEstado, tam_estado);
+						ordenarPasajeros(pListaPasajeros,  TAM, 1);
+						printf("Pasajeros ordenados\n");
+						printPassengers(pListaPasajeros, TAM, pListaEstado, tam_estado);
+					break;
+
+					case 3:
+						mostrarPrecios(pListaPasajeros, TAM);
+						superanPrecioPromedio(pListaPasajeros,TAM,totalYPromedioPrecios(pListaPasajeros, TAM));
+					break;
+
+					case 4:
+						sortPassengers(pListaPasajeros, TAM, 0, pListaEstado, tam_estado);
+					break;
+
+					case 5:
+						sortPassengers(pListaPasajeros, TAM, 1, pListaEstado, tam_estado);
+					break;
+
+					default:
+						printf("ingrese una opcion valida\n");
+					break;
+
+					}//fin switch
+
+				}//fin if
 			break;
+
 			case 5:
+				if(flagHayUnPasajero == 1)
+				{
+					printf("YA HAY PASAJEROS\n");
+				}
+				else
+				{
+					HarcodeoPasajeros(pListaPasajeros, TAM , 6 , contadorIDS);
+					contadorIDS++;
+					printf("ya se hizo el harcodeo adecuadamente\n");
+					flagHarcodeo = 1;
+				}
+			break;
+
+			case 6:
+				if(flagHayUnPasajero == 0 || flagHarcodeo == 0)
+				{
+					printf("seguro desea salir aun cuando no ingreso pasajeros ni los harcodeo?\n");
+				}
 				printf("Si desea seguir ingresando pasajeros presione s\n");
 				fflush(stdin);
 				scanf("%c", &seguir);
 			break;
+
 			default:
 				printf("La opcion elegida no existe\n");
-
 			break;
-		}
+		}//fin del switch
+
     }while(seguir == 's');
 
-
-    return 0;
+return 0;
 }
