@@ -32,9 +32,9 @@ int main()
     initPassengers(pListaPasajeros, TAM);
     eEstado pListaEstado[tam_estado] =
     {
-    		{1, "Activo"},
+    		{1, "Cancelado"},
 			{2, "Demorado"},
-			{3, "Cancelado"}
+			{3, "Activo"}
     };
     int contadorId = 1;
     int contadorIDS = 1;
